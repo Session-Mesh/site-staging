@@ -1,0 +1,632 @@
+<!doctype html>
+<!--
+  SPDX-License-Identifier: AGPL-3.0-or-later
+  Copyright (c) 2026 Atacama <contact@atacama.tech>
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'">
+<title>session-mesh: run and follow your coding agents</title>
+<meta name="description" content="session-mesh is a self-hosted web interface to run and follow terminal sessions and coding agents on your own machine, with Claude Code, Codex, Gemini CLI and other coding agents built in. Free software, AGPL-3.0-or-later.">
+<meta name="theme-color" content="#11151c">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="site.css">
+<script src="status-core.js"></script>
+<script src="site-status.js"></script>
+<script src="site.js"></script>
+<script src="hero-replay.js"></script>
+<script src="board-replay.js"></script>
+</head>
+<body>
+<a class="skip" href="#content">Skip to content</a>
+<div id="app">
+  <aside id="side" aria-label="Sessions">
+    <header class="side-head">
+      <a class="brand" href="#welcome"><svg class="brand-logo" viewBox="0 0 240 130" fill="none" aria-hidden="true" focusable="false"><defs><mask id="site-mask-left"><rect x="0" y="0" width="240" height="130" fill="white"/><line x1="100" y1="59" x2="145" y2="104" stroke="black" stroke-width="21" stroke-linecap="butt"/></mask><mask id="site-mask-right"><rect x="0" y="0" width="240" height="130" fill="white"/><line x1="95" y1="26" x2="140" y2="71" stroke="black" stroke-width="21" stroke-linecap="butt"/></mask></defs><polygon points="24,42 40,26 95,26 134,65 95,104 40,104 24,88" stroke="#1CE838" stroke-width="11" stroke-linejoin="round" mask="url(#site-mask-left)"/><polygon points="145,26 200,26 216,42 216,88 200,104 145,104 106,65" stroke="currentColor" stroke-width="11" stroke-linejoin="round" mask="url(#site-mask-right)"/><polyline points="52,48 69,65 52,82" stroke="#1CE838" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/><polyline points="169,48 186,65 169,82" stroke="currentColor" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/></svg> session-mesh</a>
+      <button id="btn-new" class="btn primary js-only" type="button" title="New session (n)" aria-haspopup="dialog">+ New</button>
+    </header>
+    <nav class="modes" aria-label="Mode">
+      <a class="mode cur" href="#welcome" data-go="welcome" aria-current="true">Sessions</a>
+      <a class="mode" href="#projects" data-go="projects" data-requires="projects">Projects</a>
+    </nav>
+    <div class="tabs js-only" role="tablist" aria-label="Sidebar">
+      <button id="tab-live" class="cur" type="button" role="tab" aria-selected="true" aria-controls="list"><span class="dot unread" aria-hidden="true"></span>Live <span class="n" data-session-count>8</span></button>
+      <button id="tab-hist" type="button" role="tab" aria-selected="false" aria-controls="hlist" tabindex="-1">History <span class="n">2</span></button>
+    </div>
+    <label class="sr-only" for="filter" id="filter-label">Filter the sessions</label>
+    <input id="filter" class="filter js-only" type="search" placeholder="Filter…" autocomplete="off" spellcheck="false">
+    <nav id="list" class="list" aria-label="Sections">
+      <div id="todo" class="todo" hidden>
+        <p class="group status-head wait"><span>Waiting for you</span><span class="count">1</span></p>
+        <button id="todo-item" class="item wait" type="button"></button>
+      </div>
+      <p class="group"><span>Mesh — interactive</span><span class="count" data-session-count>8</span></p>
+      <ul class="items">
+        <li><a class="item" href="#welcome" data-session="welcome" data-keywords="hero home start overview desktop">
+          <span class="top"><span class="dot" aria-hidden="true"></span><span class="name">welcome</span><span class="tag">bash</span><span class="ago">now</span></span>
+          <span class="meta">welcome · ~/session-mesh</span>
+          <span class="last">What session-mesh is, at a glance.</span></a></li>
+        <li><a class="item" href="#see" data-session="see" data-keywords="sidebar sessions terminal phone mobile documents panes columns notifications folders pins history search">
+          <span class="top"><span class="dot busy" aria-hidden="true"></span><span class="name">see</span><span class="tag claude">claude</span><span class="ago">1m</span></span>
+          <span class="meta"><span class="st busy">working</span> · ~/session-mesh</span>
+          <span class="last">Your sessions, on desktop and phone.</span></a></li>
+        <li><a class="item" href="#collaborate" data-session="collaborate" data-keywords="messages agents inbox consent approval mailbox whiteboard demos">
+          <span class="top"><span class="dot busy" aria-hidden="true"></span><span class="name">collaborate</span><span class="tag codex">codex</span><span class="ago">2m</span></span>
+          <span class="meta"><span class="st busy">working</span> · ~/session-mesh</span>
+          <span class="last">Agent messaging, with your approval.</span></a></li>
+        <li><a class="item" href="#structure" data-session="structure" data-keywords="structure projects roadmaps roster method spec workflow observed directories">
+          <span class="top"><span class="dot idle" aria-hidden="true"></span><span class="name">structure</span><span class="tag claude">claude</span><span class="ago">5m</span></span>
+          <span class="meta">structure · ~/session-mesh</span>
+          <span class="last">Plans and specs for your agents.</span></a></li>
+        <li data-requires="projects"><a class="item" href="#projects" data-session="projects" data-keywords="projects folders repository git readme roster roadmap kanban board dependencies gantt timeline issues github gitlab">
+          <span class="top"><span class="dot idle" aria-hidden="true"></span><span class="name">projects</span><span class="tag">bash</span><span class="ago">6m</span></span>
+          <span class="meta">projects · ~/session-mesh</span>
+          <span class="last">Project boards and dependencies.</span></a></li>
+        <li><a class="item" href="#security" data-session="security" data-keywords="security loopback sandbox csp approvals consent requests token">
+          <span class="top"><span class="dot" aria-hidden="true"></span><span class="name">security</span><span class="tag">bash</span><span class="ago">8m</span></span>
+          <span class="meta">security · ~/session-mesh</span>
+          <span class="last">Permissions and security boundaries.</span></a></li>
+        <li><a class="item" href="#roadmap" data-session="roadmap" data-keywords="roadmap future next status projects machines">
+          <span class="top"><span class="dot idle" aria-hidden="true"></span><span class="name">roadmap</span><span class="tag known-agent">pi</span><span class="ago">12m</span></span>
+          <span class="meta">roadmap · ~/session-mesh</span>
+          <span class="last">What is available and what is next.</span></a></li>
+        <li><a class="item" href="#install" data-session="install" data-keywords="install requirements linux macos mac launchd systemd license agpl maintainers github download">
+          <span class="top"><span class="dot" aria-hidden="true"></span><span class="name">install</span><span class="tag">bash</span><span class="ago">15m</span></span>
+          <span class="meta">install · ~/session-mesh</span>
+          <span class="last">Get started on Linux or macOS.</span></a></li>
+      </ul>
+      <p id="no-match" class="no-match mute" hidden>No session matches this filter.</p>
+    </nav>
+    <nav id="hlist" class="list js-only" aria-label="History" hidden>
+      <p class="hlist-intro">In session-mesh this tab lists your past conversations; on this page it lists the releases.</p>
+      <!-- history-sidebar:begin -->
+      <p class="group"><span>Releases</span><span class="count">2</span></p>
+      <ul class="items">
+        <li><a class="item hitem" href="#history/v0.1.1" data-hist="v0.1.1">
+          <span class="top"><span class="dot hist" aria-hidden="true"></span><span class="name">v0.1.1 — patch release</span></span>
+          <span class="last">A patch release of the 0.1 line: fixes, a native mesh-logout-all, and documentation.</span></a></li>
+        <li><a class="item hitem" href="#history/v0.1.0" data-hist="v0.1.0">
+          <span class="top"><span class="dot hist" aria-hidden="true"></span><span class="name">v0.1.0 — first public release</span></span>
+          <span class="last">The first public release of session-mesh, an alpha.</span></a></li>
+      </ul>
+      <p class="more-gh-row"><a class="more-gh gh-changelog" href="https://github.com/Session-Mesh/session-mesh/blob/main/CHANGELOG.md">Full changelog on GitHub</a></p>      <!-- history-sidebar:end -->
+    </nav>
+    <footer class="side-foot">
+      <span class="foot-count"><span data-session-count>8</span> sessions · 2 working</span>
+      <a class="btn ghost sm" href="https://github.com/Session-Mesh/session-mesh">Source code</a>
+      <a class="btn ghost sm" href="#history">Releases</a>
+      <span class="mute">AGPL-3.0-or-later</span>
+      <span class="foot-legal"><span class="foot-legal-text">Independent project, not affiliated with the tools it names.</span> <a href="#independent">Details</a></span>
+    </footer>
+  </aside>
+
+  <div id="side-grip" class="grip js-only" aria-hidden="true"></div>
+
+  <main id="main">
+    <div class="bar js-only">
+      <button id="btn-menu" class="btn" type="button" aria-controls="side" aria-expanded="false">Sessions</button>
+      <p class="bar-title mute" id="bar-hint">Pick a session on the left</p>
+      <div class="bar-actions">
+        <button id="btn-panel" class="btn ghost" type="button" aria-pressed="true" title="Show or hide the column on the right">⊞ Column</button>
+        <a class="btn ghost" href="https://github.com/Session-Mesh/session-mesh">View on GitHub</a>
+        <a class="btn primary" href="#install" data-go="install">Install</a>
+      </div>
+      <button id="btn-mobile-panels" class="btn ghost" type="button" aria-controls="sheet-panes" aria-haspopup="dialog">Panes</button>
+      <button id="btn-mobile-actions" class="btn ghost" type="button" aria-controls="sheet-actions" aria-haspopup="dialog">Actions</button>
+    </div>
+
+    <div id="panes">
+      <div id="col-main" class="workspace-group group-active">
+        <div class="workspace-tabs js-only" role="tablist" aria-label="Panes">
+          <button class="workspace-tab" type="button" role="tab" aria-selected="true" data-pane="main" id="tab-main">terminal · welcome</button>
+          <button class="workspace-tab tab-other" type="button" role="tab" aria-selected="false" data-pane="doc">document</button>
+        </div>
+        <section class="pane active" aria-label="Section">
+          <div class="pane-head js-only">
+            <div class="p-identity"><span class="p-name" id="pane-name">welcome</span></div>
+            <div class="p-status"><span class="p-agent" id="pane-agent" data-state="shell" title="shell"></span><span class="conn" title="connected"></span></div>
+            <span class="p-cmd mute" id="pane-cmd">bash</span>
+          </div>
+          <div class="pane-body">
+            <div id="content" class="reader" tabindex="-1">
+
+<section class="sess" id="welcome" data-agent="bash" data-state="shell" aria-labelledby="h-welcome">
+  <div class="hero">
+    <div class="hero-text">
+      <p class="hero-brand"><img class="hero-logo" src="assets/session-mesh-dark.svg" alt="" width="240" height="130"><span class="wordmark">session-mesh</span></p>
+      <h1 id="h-welcome">Multi-agent collaboration,<br class="desk-only"> at your fingertips.</h1>
+      <p class="lede">A self-hosted web interface for your terminal sessions and coding agents. Follow their work and let them collaborate, from your desk or your phone.</p>
+      <p class="cta"><a class="btn primary big" href="#install" data-go="install">Install</a> <a class="btn big" href="https://github.com/Session-Mesh/session-mesh"><svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>View on GitHub</a></p>
+    </div>
+    <div class="hero-visual">
+      <div class="hero-mock" id="hero-mock" role="group" aria-label="Illustration of the interface: a session list and the terminal of one session. The session tests sends a message to the session api, and the page asks you before api reads it.">
+        <div class="hm-side" id="hm-side" aria-hidden="true">
+          <p class="hm-group hm-wait-group hm-extra"><span>Waiting for you</span><span>1</span></p>
+          <p class="hm-item wait hm-extra"><span class="top"><span class="dot wait"></span><b>migrate</b><span class="tag claude">claude</span></span><span class="st wait">waiting for you</span><span class="last">Run the database migration?</span></p>
+          <p class="hm-group"><span>Mesh — interactive</span><span>2</span></p>
+          <p class="hm-item"><span class="top"><span class="dot busy"></span><b>tests</b><span class="tag known-agent">pi</span></span><span class="st busy">working</span><span class="last" id="hm-tests-last">Message sent to api</span></p>
+          <p class="hm-item cur" id="hm-api"><span class="top"><span class="dot busy" id="hm-api-dot"></span><b>api</b><span class="tag claude">claude</span></span><span class="st busy" id="hm-api-st">working</span><span class="last">Refactor the token refresh</span></p>
+        </div>
+        <div class="hm-term">
+          <p class="hm-head"><b>api</b><span class="tag claude">claude</span><span class="hm-state" id="hm-state">● working</span></p>
+          <p class="ml" data-hero-step="0">● Refactoring the token refresh…</p>
+          <p class="ml dim" data-hero-step="2">● Turn finished. Idle at the prompt.</p>
+          <p class="ml notice" data-hero-step="3"># Mesh: new message(s) waiting; …</p>
+          <div class="hm-consent" id="hm-consent" data-hero-step="3" role="group" aria-labelledby="hm-consent-title">
+            <p class="hm-consent-title" id="hm-consent-title">Message from another agent</p>
+            <p><b>tests</b> (pi) sent a message to <b>api</b>. Its content stays hidden until you allow it.</p>
+            <p class="hm-actions js-only">
+              <button class="btn ghost sm" type="button" data-hero-answer="later">Later</button>
+              <button class="btn primary sm" type="button" data-hero-answer="once">Read this time</button>
+            </p>
+          </div>
+          <p class="ml hm-off" id="hm-result"></p>
+        </div>
+      </div>
+      <p class="hero-foot"><span id="hm-status" role="status" aria-live="polite">An agent wants to read a message from another agent: you decide.</span> <button class="btn ghost sm js-only" type="button" id="hm-replay" hidden>↻ Replay</button> <a href="#welcome-screens" class="js-only" data-open-doc>Screenshots</a></p>
+    </div>
+  </div>
+  <ul class="points" aria-label="Why session-mesh">
+    <li><strong>Yours, for free.</strong> Your machine or your server, no sign-up.</li>
+    <li><strong>Always on.</strong> Close the tab: your agents keep running.</li>
+    <li><strong>Your call.</strong> Different agents collaborate, under your control.</li>
+  </ul>
+  <div class="agents-strip" role="group" aria-labelledby="agents-title">
+    <p class="strip-title" id="agents-title">Built-in agents</p>
+    <div class="marquee">
+      <ul class="marquee-track">
+        <li class="agent"><img class="logo" src="assets/agents/claude-code.svg" width="30" height="30" alt=""><span class="aname">Claude Code</span></li>
+        <li class="agent"><img class="logo" src="assets/agents/codex.svg" width="30" height="30" alt=""><span class="aname">Codex</span></li>
+        <li class="agent"><img class="logo" src="assets/agents/pi.svg" width="30" height="30" alt=""><span class="aname">Pi</span></li>
+        <li class="agent"><img class="logo" src="assets/agents/opencode.svg" width="30" height="30" alt=""><span class="aname">OpenCode</span></li>
+        <li class="agent"><img class="logo" src="assets/agents/antigravity.svg" width="30" height="30" alt=""><span class="aname">Antigravity</span></li>
+        <li class="agent"><img class="logo" src="assets/agents/gemini.svg" width="30" height="30" alt=""><span class="aname">Gemini CLI</span></li>
+        <li class="agent"><img class="logo" src="assets/agents/copilot.svg" width="30" height="30" alt=""><span class="aname">Copilot CLI</span></li>
+        <li class="agent"><img class="logo" src="assets/agents/mistral.svg" width="30" height="30" alt=""><span class="aname">Mistral Vibe</span></li>
+        <li class="agent more"><span class="mono" aria-hidden="true">+</span><span class="aname">More to come</span></li>
+      </ul>
+    </div>
+    <p class="strip-note">Any other terminal program runs too, as a plain session.</p>
+  </div>
+  <p class="site-orientation">This site works like session-mesh: each section is a session in the sidebar.</p>
+  <div class="prose">
+    <ul class="chips-row" aria-label="Project status">
+      <li class="chip-s">self-hosted</li><li class="chip-s alpha">alpha · Linux, macOS</li><li class="chip-s">AGPL-3.0-or-later</li>
+    </ul>
+  </div>
+  <figure class="visual gallery" id="welcome-screens" data-for="welcome" data-title="screenshots">
+    <div class="shot-frame">
+      <a class="shot" href="assets/desktop.png"><img src="assets/desktop.png" width="1440" height="860" alt="session-mesh on a desktop: three agent sessions in the sidebar, one of them waiting for you; the terminal of another agent with its changes ready for review, and a product brief rendered in the next column."></a>
+      <p class="shot-cap">Desktop: one agent waits for you; another has changes ready for review, with the product brief in the next column.</p>
+    </div>
+    <div class="shot-frame">
+      <a class="shot" href="assets/consent-request.png"><img src="assets/consent-request.png" width="1440" height="860" alt="session-mesh on a desktop: the request “Message from another agent”, naming the sending and the receiving session, with the choices Later, Refuse, Read this time and Always for this exact session."></a>
+      <p class="shot-cap">Desktop: the request shown before an agent reads a message from another one.</p>
+    </div>
+    <div class="phone-pair">
+      <div class="shot-frame">
+        <a class="shot" href="assets/phone-sessions.png"><img src="assets/phone-sessions.png" width="390" height="780" alt="session-mesh on a phone: the session drawer, with the Sessions and Projects tabs and one agent waiting for you between two others."></a>
+        <p class="shot-cap">Phone: the session drawer, with an agent waiting for you.</p>
+      </div>
+      <div class="shot-frame">
+        <a class="shot" href="assets/phone-terminal.png"><img src="assets/phone-terminal.png" width="390" height="780" alt="session-mesh on a phone: the terminal of an agent, with the input line and the key bar below."></a>
+        <p class="shot-cap">Phone: the terminal of an agent; the input line and key bar are below.</p>
+      </div>
+    </div>
+    <figcaption>The real interface, on a throwaway instance with sample sessions and data. Select a picture to see it at full size.</figcaption>
+  </figure>
+  <p class="next"><a class="next-link" href="#see" data-go="see">Next: see <span aria-hidden="true">→</span></a></p>
+</section>
+
+<section class="sess" id="see" data-agent="claude" data-state="busy" aria-labelledby="h-see">
+  <p class="cmdline" aria-hidden="true"><span class="prompt">~/session-mesh$</span> <span class="cmd" data-cmd="mesh-open desktop.png">mesh-open desktop.png</span><span class="out">opened in session-mesh: desktop.png</span></p>
+  <h2 id="h-see"><span class="h-prompt" aria-hidden="true">#</span> All your sessions on one screen</h2>
+  <div class="prose">
+    <p class="lead">Who is working, who waits for you, and the last prompt each one received: the sidebar answers before you open anything.</p>
+    <p>Sessions that need you come first: <strong>Waiting for you</strong> when an agent asks a question or a permission, <strong>Finished, unread</strong> until you open it, <strong>Active</strong> while it works. Claude Code reports when it waits for you; the other agents show working or idle. The machine's other terminals are listed below them.</p>
+    <p class="app-hint" data-requires="projects"><span class="hint-btn" aria-hidden="true">Projects</span><span>Your sessions are one view. <strong>Projects</strong>, the other tab of the sidebar, is another: each project with its repository, its plan and its work. <a href="#projects" data-go="projects">Read about Projects →</a></span></p>
+    <h3>Tidy, and easy to find again</h3>
+    <p>File sessions into folders and pin the ones that matter: a pinned conversation stays at hand even after it ends. Closed sessions are not lost: search past conversations by title or by their full text, and resume one in a click. The search runs on your machine; nothing is sent anywhere.</p>
+    <h3>Terminals as they are</h3>
+    <p>A terminal shows exactly what the program prints, so full-screen agent interfaces look as they do in your own terminal. Your agents keep your own subscription or API keys: session-mesh is just a terminal, a better one. Sessions survive a restart of the web server. After a restart of the machine, the page restores them: each agent resumes its conversation, and messages between agents are kept. You can open up to three columns.</p>
+    <h3>Documents beside the terminals</h3>
+    <p>A column can show HTML, Markdown with diagrams, PDF, images or source code. Click a path in a terminal, or run <code>mesh-open FILE</code>: an agent can show you the report it has just written.<span data-unless="macos-documents" hidden> Documents beside the terminals are Linux-only for now: on macOS, <code>mesh-open</code> and a click on a path open nothing.</span></p>
+    <h3>On your phone</h3>
+    <p>One column, the session list as a drawer, and a key bar with Esc, Tab, Ctrl and arrows. Optional push notifications tell you when an agent finishes or waits for you.</p>
+    <h3>Quick to drive</h3>
+    <p><kbd>Ctrl</kbd>/<kbd>⌘</kbd>+<kbd>K</kbd> finds a session, <kbd>Ctrl</kbd>/<kbd>⌘</kbd>+<kbd>Shift</kbd>+<kbd>K</kbd> works even inside a terminal, and <kbd>?</kbd> lists the shortcuts. The interface is in English and French.</p>
+    <p><a href="https://github.com/Session-Mesh/session-mesh/blob/main/docs/features.md">Every feature, in the documentation</a></p>
+  </div>
+  <figure class="visual phones" data-for="see" data-title="desktop.png">
+    <a class="shot shot-wide" href="assets/desktop.png"><img src="assets/desktop.png" width="1440" height="860" alt="session-mesh on a desktop: three agent sessions in the sidebar, one of them waiting for you; the terminal of another agent with its changes ready for review, and a product brief rendered in the next column."></a>
+    <div class="phone-pair">
+      <a class="shot" href="assets/phone-sessions.png"><img src="assets/phone-sessions.png" width="390" height="780" alt="session-mesh on a phone: the session drawer, with the Sessions and Projects tabs and one agent waiting for you between two others."></a>
+      <a class="shot" href="assets/phone-terminal.png"><img src="assets/phone-terminal.png" width="390" height="780" alt="session-mesh on a phone: the terminal of an agent, with the input line and the key bar below."></a>
+    </div>
+    <figcaption>On a desktop: three agents in the sidebar, one waiting for you, and a document beside a terminal. On a phone: the session drawer, and the terminal of an agent. Taken on a throwaway instance with sample sessions and data. Select a picture to see it at full size.</figcaption>
+  </figure>
+  <p class="next"><a class="next-link" href="#collaborate" data-go="collaborate">Next: collaborate <span aria-hidden="true">→</span></a></p>
+</section>
+
+<section class="sess" id="collaborate" data-agent="codex" data-state="busy" aria-labelledby="h-collaborate">
+  <p class="cmdline" aria-hidden="true"><span class="prompt">~/session-mesh$</span> <span class="cmd" data-cmd="mesh-open replay.html">mesh-open replay.html</span><span class="out">opened in session-mesh: replay.html (written for this page)</span></p>
+  <h2 id="h-collaborate"><span class="h-prompt" aria-hidden="true">#</span> Agents from different families, working together</h2>
+  <div class="prose">
+    <p class="lead">On their own, Claude Code, Codex, Gemini CLI and the others do not talk to each other. In session-mesh they do: an agent leaves a message or a task for another, whoever made it, and you decide what gets read.</p>
+    <p>It works through <code>mesh-board</code>, an MCP server that session-mesh gives to the agents it starts. With it, an agent lists the other agents, writes to one of them and replies to what it received.</p>
+    <h3>Agents that use session-mesh for you</h3>
+    <p>Agents started in session-mesh know how to use it. They open a document beside their terminal to show you a report, start a session to hand off a task, draw on the whiteboard and update the projects they work on. All of it happens in plain sight, in the page.</p>
+    <h3>You stay in charge</h3>
+    <p>Before an agent reads a message, the page asks you. The text of a message is never typed into a terminal. An agent can also ask to start a new session or to restart its own conversation: nothing happens until you say yes.</p>
+    <h3>A whiteboard you share with your agent</h3>
+    <p>Each session has an <a href="#collaborate" data-variant-open="whiteboard">Excalidraw whiteboard</a>. You sketch, the agent reads your sketch and draws back on the same board, and every save keeps a revision. <a href="#collaborate" class="js-only" data-variant-open="whiteboard">Watch an agent edit one →</a></p>
+    <h3>Any program, eight agents built in</h3>
+    <p>Any terminal program runs in session-mesh. Claude Code, Codex, Pi, OpenCode, Gemini CLI, Antigravity, Copilot CLI and Mistral Vibe are built in: you start them from the “New session” dialog, and they get the messaging tools.</p>
+    <p><a href="https://github.com/Session-Mesh/session-mesh/blob/main/docs/features.md">How messaging works, in the documentation</a></p>
+  </div>
+  <figure class="visual mock" data-for="collaborate" data-title="replay · messages">
+    <div class="mock-panes">
+      <div class="mock-pane" id="mock-sender">
+        <p class="mock-head"><span class="dot busy" id="mock-sender-dot" aria-hidden="true"></span><b>tests</b><span class="tag known-agent">pi</span><span class="mock-state" id="mock-sender-state">working</span></p>
+        <div class="mock-term">
+          <p class="ml" data-step="0">› ran the login test suite: 2 failures</p>
+          <p class="ml" data-step="1">› <span class="k">mesh-board</span> message to <b>api</b>: “The login tests fail since the token change. Can you look?”</p>
+          <p class="ml dim" data-step="1">› sent. Back to my task.</p>
+        </div>
+      </div>
+      <div class="mock-pane" id="mock-claude">
+        <p class="mock-head"><span class="dot busy" id="mock-claude-dot" aria-hidden="true"></span><b>api</b><span class="tag claude">claude</span><span class="mock-state" id="mock-claude-state">working</span></p>
+        <div class="mock-term">
+          <p class="ml" data-step="0">● refactoring the token refresh…</p>
+          <p class="ml dim" data-step="2">● turn finished. Idle at the prompt.</p>
+          <p class="ml notice" data-step="3"># Mesh: new message(s) waiting; …</p>
+          <p class="ml" data-step="4">› A message from <b>tests</b> waits. Asking for your consent before reading it.</p>
+          <p class="ml" data-step="5" id="mock-result">› Reading the message from tests: “The login tests fail since the token change. Can you look?”</p>
+        </div>
+      </div>
+    </div>
+    <div class="mock-consent" id="mock-consent" data-step="4" role="group" aria-labelledby="mock-consent-title">
+      <p class="mock-consent-title" id="mock-consent-title">Message from another agent</p>
+      <p>The session <b>tests</b> (pi) sent a message to <b>api</b>.</p>
+      <p class="mute small">The content stays hidden until you allow it.</p>
+      <div class="mock-actions">
+        <button class="btn ghost sm" type="button" data-answer="later">Later</button>
+        <button class="btn danger sm" type="button" data-answer="refuse">Refuse</button>
+        <button class="btn sm" type="button" data-answer="once">Read this time</button>
+        <button class="btn primary sm" type="button" data-answer="always">Always for this exact session</button>
+      </div>
+    </div>
+    <p class="mock-foot"><span id="mock-status" class="mock-status" role="status" aria-live="polite">A Pi session sends a message to a Claude Code session.</span> <button class="btn ghost sm js-only" type="button" id="mock-replay">↻ Replay</button></p>
+  </figure>
+  <figure class="visual board" data-for="collaborate" data-variant="whiteboard" data-title="whiteboard · api">
+    <div class="board-frame">
+      <p class="mock-head"><b>whiteboard</b><span class="tag claude">api</span><span class="mock-state idle" id="board-state">Whiteboard changed</span></p>
+      <svg class="board-canvas" viewBox="0 0 520 290" role="img" aria-label="A whiteboard. You drew three boxes in a row, browser, api and db, joined by arrows. The agent added a box named cache under them, joined to api and to db, and the note “on miss” on the arrow from api to db.">
+        <g class="board-user" data-board-step="0" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path class="draw" pathLength="1" d="M21.9 110.5 Q78.0 110.2 131.0 110.0 M21.3 109.1 Q74.7 110.6 129.6 109.0 M130.0 109.2 Q130.8 137.8 129.0 165.9 M129.9 111.2 Q127.9 140.4 129.7 165.6 M130.6 166.0 Q77.4 167.0 21.1 167.3 M130.7 167.3 Q77.4 165.4 21.0 166.3 M22.6 165.4 Q21.8 138.2 22.7 110.6 M22.1 165.6 Q22.5 137.6 22.9 109.4"/>
+          <path class="draw" pathLength="1" d="M205.1 109.7 Q258.2 109.2 314.7 110.8 M205.6 111.0 Q261.0 109.0 314.7 109.7 M314.0 110.4 Q312.6 138.1 313.8 166.1 M314.3 109.6 Q315.3 137.9 312.8 165.0 M314.8 165.6 Q259.3 166.5 205.7 165.5 M314.8 164.9 Q262.5 165.4 206.4 167.2 M206.3 165.5 Q207.1 138.6 206.7 110.5 M204.9 164.8 Q205.6 139.3 206.9 111.0"/>
+          <path class="draw" pathLength="1" d="M389.0 111.2 Q445.4 109.5 498.6 109.7 M391.1 110.1 Q444.5 109.2 499.2 110.7 M499.0 109.8 Q500.6 136.4 498.9 165.4 M498.6 109.1 Q497.9 136.4 498.9 165.2 M498.8 165.0 Q445.9 167.2 389.0 165.6 M498.4 166.1 Q444.3 166.4 388.8 166.7 M389.3 165.7 Q387.7 137.7 388.9 108.8 M389.0 166.4 Q390.9 138.9 389.4 109.2"/>
+          <path class="draw" pathLength="1" d="M137.0 137.6 Q169.1 132.9 197.8 137.1 M139.0 138.2 Q166.0 131.8 197.0 137.2 M189.0 131.5 Q193.8 135.6 197.9 138.5 M189.4 131.7 Q193.8 135.4 197.5 138.0 M188.0 141.0 Q193.0 140.0 198.4 138.0 M186.9 141.5 Q192.8 139.4 198.5 137.8"/>
+          <path class="draw" pathLength="1" d="M321.2 137.6 Q350.1 142.7 381.2 138.9 M321.4 138.2 Q351.0 142.9 382.6 138.2 M371.6 134.5 Q376.4 135.4 381.6 137.6 M371.2 134.8 Q377.5 135.4 382.6 137.7 M373.4 144.6 Q377.4 141.5 382.2 137.6 M372.9 144.4 Q377.7 141.9 382.0 138.5"/>
+          <text class="board-text" x="76" y="144" text-anchor="middle">browser</text>
+          <text class="board-text" x="260" y="144" text-anchor="middle">api</text>
+          <text class="board-text" x="444" y="144" text-anchor="middle">db</text>
+          <text class="board-text board-title" x="22" y="64">request path</text>
+        </g>
+        <g class="board-agent" data-board-step="3" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path class="draw" pathLength="1" d="M297.3 212.9 Q354.2 214.0 408.1 213.9 M297.6 214.9 Q353.7 216.4 406.8 215.1 M409.1 212.8 Q407.5 241.5 407.4 266.3 M408.9 214.3 Q410.2 238.3 407.9 266.3 M407.6 267.1 Q351.9 265.4 297.8 266.6 M406.8 265.9 Q351.0 266.3 298.3 267.1 M297.1 264.8 Q298.6 239.2 297.0 213.8 M298.1 266.7 Q297.6 238.6 298.4 213.9"/>
+          <path class="draw" pathLength="1" d="M269.1 172.8 Q281.9 206.0 300.2 216.6 M270.0 171.3 Q278.7 204.5 300.1 215.3 M294.5 207.0 Q298.1 211.5 300.3 216.1 M294.0 207.0 Q297.8 211.8 300.0 216.3 M289.3 214.7 Q294.4 214.7 300.5 216.5 M288.6 215.0 Q294.5 214.6 300.0 215.6"/>
+          <path class="draw" pathLength="1" d="M405.4 216.0 Q428.8 205.2 437.9 174.1 M406.1 216.9 Q426.3 203.9 437.3 173.0 M430.4 181.7 Q434.5 178.3 437.9 173.9 M429.7 181.5 Q433.8 177.0 438.4 174.4 M439.4 185.2 Q438.3 179.6 437.8 174.2 M439.3 184.6 Q438.2 180.0 437.9 174.5"/>
+          <text class="board-text" x="353" y="246" text-anchor="middle">cache</text>
+          <text class="board-text board-note" x="352" y="126" text-anchor="middle">on miss</text>
+        </g>
+      </svg>
+    </div>
+    <div class="mock-pane">
+      <p class="mock-head"><span class="dot idle" id="board-dot" aria-hidden="true"></span><b>api</b><span class="tag claude">claude</span><span class="mock-state idle" id="board-agent-state">idle</span></p>
+      <div class="mock-term">
+        <p class="ml" data-board-step="1">› The request path is on the whiteboard. Where would a cache help?</p>
+        <p class="ml dim" data-board-step="2">● Reading the whiteboard…</p>
+        <p class="ml" data-board-step="3">● I added a cache between api and db, on the board.</p>
+      </div>
+    </div>
+    <p class="mock-foot"><span id="board-status" class="mock-status" role="status" aria-live="polite">You and the session's agent edit the same whiteboard.</span> <button class="btn ghost sm js-only" type="button" id="board-replay">↻ Replay</button></p>
+    <p class="js-only"><button class="btn ghost sm" type="button" data-variant-open="">← Back to the messages replay</button></p>
+  </figure>
+  <p class="next"><a class="next-link" href="#structure" data-go="structure">Next: structure <span aria-hidden="true">→</span></a></p>
+</section>
+
+<section class="sess" id="structure" data-agent="claude" data-state="idle" aria-labelledby="h-structure">
+  <span id="frame" class="anchor-alias" aria-hidden="true"></span>
+  <p class="cmdline" aria-hidden="true"><span class="prompt">~/session-mesh$</span> <span class="cmd" data-cmd="mesh-open roster.md">mesh-open roster.md</span><span class="out">opened in session-mesh: roster.md (written for this page)</span></p>
+  <h2 id="h-structure"><span class="h-prompt" aria-hidden="true">#</span> Structure for agent work</h2>
+  <div class="prose">
+    <p class="lead"><span class="chip-s progress">in progress</span> Agents do better work with structure: a project they belong to, a plan to follow, a specification to check against.</p>
+    <p>The sidebar groups live sessions by the directory they work in, under “Observed directories”. A session whose directory could not be read is counted apart, never filed under a guessed project.</p>
+    <h3>Roster first</h3>
+    <p><a href="https://github.com/mathiasbourgoin/roster">Roster</a> is the spec-driven harness session-mesh itself is written with: a task becomes a brief that a human validates, then a specification, a plan, an implementation, a review and quality checks before it ships. It is the first harness session-mesh reads.</p>
+    <p><strong>Projects</strong> keeps each project with its folders, repository and sources, reads its Git repository and the tasks of its Roster roadmap, and shows them as a board, a dependency graph or a Gantt chart. Agents read and update the projects they work on.</p>
+    <h3>Other harnesses next</h3>
+    <p>The roadmap adds connectors for other families of agent harnesses, so that Projects reads their plans and tasks as it reads Roster's.</p>
+  </div>
+  <figure class="visual" data-for="structure" data-title="roster.md">
+    <div class="doc">
+      <p class="doc-bar"><span>roster.md</span><span class="doc-src">written for this page</span></p>
+      <div class="doc-body">
+        <p class="doc-h1">Roster</p>
+        <p>The spec-driven harness session-mesh is written with. Each task goes through these steps:</p>
+        <p class="doc-diagram"><img src="assets/roster-pipeline.svg" width="150" height="471" alt="Diagram of the Roster pipeline, from top to bottom: intake, spec, plan, implement, review, QA, ship."></p>
+        <p><a href="https://github.com/mathiasbourgoin/roster">github.com/mathiasbourgoin/roster</a></p>
+      </div>
+    </div>
+    <figcaption>A Markdown document shown in a pane next to a terminal, with its diagram, as session-mesh shows it.</figcaption>
+  </figure>
+  <p class="next" data-unless="projects" hidden><a class="next-link" href="#security" data-go="security">Next: security <span aria-hidden="true">→</span></a></p>
+  <p class="next" data-requires="projects"><a class="next-link" href="#projects" data-go="projects">Next: projects <span aria-hidden="true">→</span></a></p>
+</section>
+
+<section class="sess" id="projects" data-agent="bash" data-state="idle" aria-labelledby="h-projects" data-requires="projects">
+  <h2 id="h-projects"><span class="h-prompt" aria-hidden="true">#</span> Projects: the context of your work</h2>
+  <div class="prose wide">
+    <p class="lead">Sessions show what runs now. <strong>Projects</strong>, the other tab of the sidebar, shows what the work belongs to: each project, its repository, its plan and the work to do.</p>
+    <ol class="facts">
+      <li><strong>A project needs only a name.</strong> Add its folders, its repository and links to its sources when you need them. They stay on your machine.</li>
+      <li><strong>Seven views.</strong> Overview, Work, Roster, Repository, Sessions, Activity and Sources: the README and Git state, the roadmaps, the sessions that take part and what changed, refreshed when you ask.</li>
+      <li><strong>The work, three ways.</strong> A Kanban board (To do, In progress, Blocked, Done) with prerequisites and assignments, a dependency graph, and a Gantt chart of the recorded attempts. What is unknown is shown as unknown.</li>
+      <li><strong>The plan and the issues.</strong> The documents of a <a href="https://github.com/mathiasbourgoin/roster">Roster</a> roadmap open in a reader, and the project's GitHub or GitLab issues are listed with its work, read-only.</li>
+      <li><strong>Sessions stay where they are.</strong> Going to Projects and back keeps your terminals, drafts and columns as you left them.</li>
+    </ol>
+    <p>Agents read and update the projects they work on. session-mesh writes nothing to GitHub or GitLab.</p>
+    <p><a href="https://github.com/Session-Mesh/session-mesh/blob/main/docs/projects.md">Projects, in the documentation</a></p>
+  </div>
+  <figure class="visual phones" data-for="projects" data-title="projects.png">
+    <a class="shot shot-wide" href="assets/projects.png"><img src="assets/projects.png" width="1440" height="1000" alt="The Work view of a sample project in session-mesh: its Roster roadmap as a Kanban board, with To do, In progress, Blocked and Done columns, prerequisites and an assignment."></a>
+    <a class="shot shot-wide" href="assets/projects-dependencies.png"><img src="assets/projects-dependencies.png" width="1440" height="1000" alt="The same roadmap as a dependency graph: each task with its state and dependency level, and arrows from prerequisites to the tasks that depend on them."></a>
+    <figcaption>The Work view of a sample project: its Roster roadmap as a Kanban board, then as a dependency graph. Taken on a throwaway instance with sample data. Select a picture to see it at full size.</figcaption>
+  </figure>
+  <p class="next"><a class="next-link" href="#security" data-go="security">Next: security <span aria-hidden="true">→</span></a></p>
+</section>
+
+<section class="sess" id="security" data-agent="bash" data-state="shell" aria-labelledby="h-security">
+  <h2 id="h-security"><span class="h-prompt" aria-hidden="true">#</span> Security, by design</h2>
+  <div class="prose wide">
+    <p class="lead">session-mesh runs your terminals and your agents, so it is built to stay in your hands: local by default, documents kept apart from your sessions, and agent actions that wait for your approval.</p>
+    <ol class="facts">
+      <li><strong>Local only, unless you choose otherwise.</strong> The server listens on <code>127.0.0.1</code> and refuses any other address at startup unless you allow it explicitly. To reach it from your other devices, you publish it on a private network of your choice; the installer can do it with Tailscale. A <a href="https://github.com/Session-Mesh/session-mesh/blob/main/docs/operations.md#https-on-a-vpn-address-with-a-reverse-proxy">guide</a> also covers HTTPS on a VPN address through a Caddy reverse proxy, with the server still on the loopback.</li>
+      <li><strong>A secret token to log in.</strong> The server creates it on first start, and only your user can read it.</li>
+      <li><strong>Documents cannot touch your sessions.</strong> A page written by an agent cannot read your login cookie, drive your terminals or call session-mesh's API. It opens in a sandbox that the browser treats as a separate site, under a restrictive Content Security Policy.</li>
+      <li><strong>Agent actions wait for your approval.</strong> Reading a message from another agent, starting a new session and restarting an agent's own conversation happen only after you approve them in the page.</li>
+    </ol>
+    <p>The security policy gives the details: what session-mesh defends against, its known limits, and how to report a vulnerability privately.</p>
+    <p><a href="https://github.com/Session-Mesh/session-mesh/blob/main/SECURITY.md">Read SECURITY.md on GitHub</a></p>
+  </div>
+  <p class="next"><a class="next-link" href="#roadmap" data-go="roadmap">Next: roadmap <span aria-hidden="true">→</span></a></p>
+</section>
+
+<section class="sess" id="roadmap" data-agent="pi" data-state="idle" aria-labelledby="h-roadmap">
+  <h2 id="h-roadmap"><span class="h-prompt" aria-hidden="true">#</span> Where it goes</h2>
+  <div class="prose">
+      <ol class="steps">
+        <li><span class="step-k">Soon</span><strong>Projects, further.</strong> The steps of each Roster task in one view, the plans of other harnesses, and tasks kept in step with their issues.</li>
+        <li><span class="step-k">Later</span><strong>All your machines.</strong> The agents of several machines in one interface.</li>
+      </ol>
+    <details class="status-fold" hidden>
+      <summary id="status">Status of each feature</summary>
+      <dl class="legend" id="status-legend">
+        <div><dt><span class="chip-s available">available</span></dt><dd>in the current release.</dd></div>
+        <div><dt><span class="chip-s progress">in progress</span></dt><dd>being built, not in a release yet.</dd></div>
+        <div><dt><span class="chip-s planned">planned</span></dt><dd>not started yet.</dd></div>
+      </dl>
+    <ul class="status-list" id="status-table">
+      <li data-feature="observed" data-status="available" data-label="observed directories"><span class="chip-s available">available</span> <strong>Observed directories.</strong> The sidebar groups live sessions by the directory they work in.</li>
+      <li data-feature="macos" data-status="available" data-label="macOS support"><span class="chip-s available">available</span> <strong>macOS support.</strong> Apple silicon, macOS 12.3 or later. Best effort: Linux comes first.<span data-unless="macos-documents" hidden> Documents beside the terminals are Linux-only for now.</span></li>
+      <li data-feature="macos-documents" data-status="available" data-label="documents beside the terminals on macOS"><span class="chip-s available">available</span> <strong>Documents beside the terminals on macOS.</strong> Open HTML, Markdown, PDF, images and source files next to a terminal on a Mac, as on Linux.</li>
+      <li data-feature="projects" data-status="available" data-label="projects"><span class="chip-s available">available</span> <strong>Projects.</strong> A tab beside Sessions: each project with its repository, its README, its Roster roadmap and its work, as a board, a dependency graph or a Gantt chart.</li>
+      <li data-feature="agent-projects" data-status="available" data-label="projects for agents"><span class="chip-s available">available</span> <strong>Projects for agents.</strong> Agents read and update the projects they work on, and a view shows which session does what.</li>
+      <li data-feature="roster-pipeline" data-status="in progress" data-label="Roster task steps in Projects"><span class="chip-s progress">in progress</span> <strong>Roster task steps in Projects.</strong> The phases, review and checks of one Roster task, in one view.</li>
+      <li data-feature="voice" data-status="planned" data-label="voice transcription"><span class="chip-s planned">planned</span> <strong>Voice transcription.</strong> Speak to an agent and have your words written into its input.</li>
+      <li data-feature="binaries" data-status="in progress" data-label="ready-made packages for Linux and macOS"><span class="chip-s progress">in progress</span> <strong>Ready-made packages for Linux and macOS.</strong> Install with one script, with nothing to build.</li>
+      <li data-feature="more-agents" data-status="available" data-label="eight built-in agents"><span class="chip-s available">available</span> <strong>Eight built-in agents.</strong> Claude Code, Codex, Pi, OpenCode, Gemini CLI, Antigravity, Copilot CLI and Mistral Vibe start from the “New session” dialog.</li>
+      <li data-feature="agent-wake" data-status="in progress" data-label="woken by a message, for every agent"><span class="chip-s progress">in progress</span> <strong>Woken by a message, for every agent.</strong> An idle agent starts reading when a message arrives. Claude Code, Pi, OpenCode, Gemini CLI and Mistral Vibe already do.</li>
+      <li data-feature="harness-connectors" data-status="planned" data-label="connectors for other harnesses"><span class="chip-s planned">planned</span> <strong>Connectors for other harnesses.</strong> Projects reads the plans and tasks of other agent harnesses, not only Roster.</li>
+      <li data-feature="github-connector" data-status="available" data-label="issues in Projects"><span class="chip-s available">available</span> <strong>Issues in Projects.</strong> A project's GitHub or GitLab issues, read-only.</li>
+    </ul>
+    </details>
+  </div>
+  <figure class="visual mock" data-for="roadmap" data-title="preview · next">
+    <div class="mock-panes" aria-hidden="true">
+      <div class="mock-pane">
+        <p class="mock-head"><b>Projects · one task</b><span class="mock-state idle">next</span></p>
+        <div class="pm">
+          <p class="pm-title"><b>Task: add search to the docs</b></p>
+          <p class="pm-meta">Roster task · linked to GitHub issue #42</p>
+          <p class="pm-k">Its steps</p>
+          <p class="pm-task"><span class="pm-st done">done</span>Intake</p>
+          <p class="pm-task"><span class="pm-st done">done</span>Specification</p>
+          <p class="pm-task"><span class="pm-st done">done</span>Plan</p>
+          <p class="pm-task"><span class="pm-st done">done</span>Implementation</p>
+          <p class="pm-task"><span class="pm-st doing">running</span>Review</p>
+          <p class="pm-task"><span class="pm-st">queued</span>QA</p>
+          <p class="pm-task"><span class="pm-st">queued</span>Ship</p>
+          <p class="pm-k">The session working on it</p>
+          <p class="hm-item"><span class="top"><span class="dot busy"></span><b>docs-search</b><span class="tag claude">claude</span></span><span class="st busy">working</span></p>
+        </div>
+      </div>
+      <div class="mock-pane">
+        <p class="mock-head"><b>All your machines</b><span class="mock-state idle">later</span></p>
+        <div class="hm-side pm-machines">
+          <p class="hm-group"><span>laptop</span><span>2</span></p>
+          <p class="hm-item"><span class="top"><span class="dot busy"></span><b>api</b><span class="tag claude">claude</span></span><span class="st busy">working</span></p>
+          <p class="hm-item"><span class="top"><span class="dot idle"></span><b>notes</b><span class="tag">bash</span></span></p>
+          <p class="hm-group"><span>workstation</span><span>1</span></p>
+          <p class="hm-item wait"><span class="top"><span class="dot wait"></span><b>migrate</b><span class="tag codex">codex</span></span><span class="st wait">waiting for you</span></p>
+          <p class="hm-group"><span>your server</span><span>1</span></p>
+          <p class="hm-item"><span class="top"><span class="dot busy"></span><b>nightly</b><span class="tag known-agent">pi</span></span><span class="st busy">working</span></p>
+        </div>
+      </div>
+    </div>
+    <figcaption>Projects, next: one task followed step by step, linked to its issue, with the agent session working on it. Later: the agents of all your machines, in one sidebar.</figcaption>
+  </figure>
+  <p class="next"><a class="next-link" href="#install" data-go="install">Next: install <span aria-hidden="true">→</span></a></p>
+</section>
+
+<section class="sess" id="install" data-agent="bash" data-state="shell" aria-labelledby="h-install">
+  <h2 id="h-install"><span class="h-prompt" aria-hidden="true">#</span> Install</h2>
+  <div class="prose">
+    <p class="lead"><span class="chip-s alpha">alpha · Linux, macOS</span> Built for one person on one machine, self-hosted and open source. Take part in its development and help shape where it goes.</p>
+    <p data-unless="binaries"><span class="chip-s progress" data-status-of="binaries">in progress</span> A ready-made package for Linux and macOS, installed with one script, with nothing to build.</p>
+    <ul>
+      <li><strong>Linux</strong> on x86_64: the primary platform.</li>
+      <li><strong>macOS</strong> on Apple silicon: best-effort for now; a few features are Linux-only.<span data-unless="macos-documents" hidden> Documents beside the terminals are not available there yet.</span></li>
+    </ul>
+    <p data-unless="binaries">Until then, the source code and its documentation are on GitHub.</p>
+    <div data-requires="binaries" hidden>
+      <p>Download the installer of the release and its checksums, check them, and run it:</p>
+      <pre class="install-cmd"><code>tag=v0.1.0
+base="https://github.com/Session-Mesh/session-mesh/releases/download/$tag"
+curl -fsSLO "$base/install.sh" -O "$base/SHA256SUMS"
+sha256sum -c --ignore-missing SHA256SUMS   # macOS: shasum -a 256 -c --ignore-missing SHA256SUMS
+bash install.sh</code></pre>
+      <p class="install-flags">The same <code>install.sh</code> upgrades (<code>--upgrade</code>), goes back to the previous release (<code>--rollback</code>) and uninstalls (<code>--uninstall</code>). <a href="https://github.com/Session-Mesh/session-mesh#install">Verifying the download, and other ways to install</a>.</p>
+    </div>
+    <p>It also runs on a server without a screen, such as your own VPS: reach it through an SSH tunnel or your private network. Use a machine that only you log in to.</p>
+    <h3>License and maintainers</h3>
+    <p>session-mesh is free software under the GNU Affero General Public License, version 3 or any later version (AGPL-3.0-or-later). It is maintained by <a href="https://atacama.tech">Atacama</a> (<a href="mailto:contact@atacama.tech">contact@atacama.tech</a>). Contributions are welcome under a contributor license agreement.</p>
+    <p class="small-print" id="independent">session-mesh is an independent project. It is not affiliated with or endorsed by Anthropic (Claude Code), OpenAI (Codex), Google (Gemini CLI, Antigravity), GitHub (Copilot CLI), Mistral AI (Mistral Vibe), Tailscale, or the makers of Pi, OpenCode and the other tools and libraries it names; their names and marks belong to their owners.</p>
+    <p class="cta"><a class="btn primary big" href="https://github.com/Session-Mesh/session-mesh">github.com/Session-Mesh/session-mesh</a></p>
+  </div>
+  <p class="next"><a class="next-link" href="#welcome" data-go="welcome">Back to the start <span aria-hidden="true">↺</span></a></p>
+</section>
+
+<section class="sess hist-sess" id="history" data-agent="changelog" data-state="idle" aria-labelledby="h-history">
+  <p class="cmdline" aria-hidden="true"><span class="prompt">~/session-mesh$</span> <span class="cmd" data-cmd="mesh-open CHANGELOG.md">mesh-open CHANGELOG.md</span><span class="out">opened in session-mesh: CHANGELOG.md</span></p>
+  <p class="hback js-only"><a href="#history"><span aria-hidden="true">←</span> All releases</a></p>
+  <h2 id="h-history"><span class="h-prompt" aria-hidden="true">#</span> Releases</h2>
+  <div class="prose hist-intro">
+    <p class="lead">Each release of session-mesh and its highlights. Every change is in the <a href="https://github.com/Session-Mesh/session-mesh/blob/main/CHANGELOG.md">full changelog</a>.</p>
+    <p class="js-only">In session-mesh, the History tab lists your past conversations; on this page it lists the releases.</p>
+    <p>Versions follow <a href="https://semver.org/">semantic versioning</a>; before 1.0, a minor version may change behaviour.</p>
+  </div>
+  <figure class="visual" data-for="history" data-title="CHANGELOG.md">
+    <div class="doc">
+      <p class="doc-bar"><span>CHANGELOG.md</span><span class="doc-src">releases</span></p>
+      <div class="doc-body">
+        <p class="doc-h1">Releases</p>
+        <ul class="doc-list doc-toc">
+<!-- history-toc:begin -->
+          <li><a href="#history/v0.1.1">v0.1.1 — patch release</a></li>
+          <li><a href="#history/v0.1.0">v0.1.0 — first public release</a></li><!-- history-toc:end -->
+        </ul>
+        <p class="doc-link"><a class="gh-changelog" href="https://github.com/Session-Mesh/session-mesh/blob/main/CHANGELOG.md">Full changelog on GitHub →</a></p>
+      </div>
+    </div>
+    <figcaption>The releases of session-mesh. Select one to read its highlights.</figcaption>
+  </figure>
+  <div class="hist-version">
+<!-- history-entries:begin -->
+    <article class="hentry" id="history/v0.1.1" data-slug="v0.1.1" aria-labelledby="ht-v0.1.1">
+      <p class="hmeta"><span class="tag">release</span></p>
+      <h3 class="htitle" id="ht-v0.1.1">v0.1.1 — patch release</h3>
+      <div class="hbody">
+        <p>A patch release of the 0.1 line: fixes, a native mesh-logout-all, and documentation.</p>
+        <ul class="highlights">
+          <li>Idle Claude Code and Codex sessions no longer show as working in the sidebar; a question or permission prompt is still always shown.</li>
+          <li>Clicks reach full-screen programs such as Claude Code that ignore a click right after a focus-in, on desktop and on a phone.</li>
+          <li data-requires="projects">In Projects on a phone, the Kanban, Gantt and dependency views scroll sideways by touch, and the Kanban becomes vertical sections at 640 px or less.</li>
+          <li><code>mesh-logout-all</code> is now a native program that needs no Python interpreter and ships with every release and install mode, including an upgrade from 0.1.0.</li>
+          <li>The bootstrap script installs the OCaml dependencies from the pinned opam repository, so it no longer fails on a host whose repository is older.</li>
+          <li>On macOS, the Configuration dialog reports the PTY host as running, as on Linux, and the local test and copyright scripts run there.</li>
+        </ul>
+        <p><a class="gh-changelog" href="https://github.com/Session-Mesh/session-mesh/blob/main/CHANGELOG.md">Full changelog on GitHub</a></p>
+      </div>
+      <p class="hnav js-only"><a class="hnav-prev" href="#history"><span aria-hidden="true">←</span> All releases</a></p>
+    </article>
+    <article class="hentry" id="history/v0.1.0" data-slug="v0.1.0" aria-labelledby="ht-v0.1.0">
+      <p class="hmeta"><span class="tag">release</span></p>
+      <h3 class="htitle" id="ht-v0.1.0">v0.1.0 — first public release</h3>
+      <div class="hbody">
+        <p>The first public release of session-mesh, an alpha.</p>
+        <ul class="highlights">
+          <li>Shells, Claude Code, Codex, Pi, OpenCode, Gemini CLI, Antigravity, Copilot CLI, Mistral Vibe or any command in your browser, in up to three columns, with the machine's other terminals listed beside them.</li>
+          <li>Documents beside the terminals: HTML, Markdown, PDF, images and source files, in a sandboxed viewer.</li>
+          <li>Messages between agents: no agent reads a message, and no session is started or restarted at an agent's request, before you approve.</li>
+          <li data-requires="projects">Projects: a tab beside Sessions for your projects, with their repository, README and Roster roadmap as a Kanban board, a dependency graph or a Gantt chart, and their GitHub or GitLab issues, read-only.</li>
+          <li>On your phone: one column, the session list as a drawer, and optional push notifications that by default carry only the session name and the kind of event.</li>
+          <li data-unless="macos-documents" hidden>Linux first, and macOS 12.3 or later on Apple silicon, supported on a best-effort basis; on macOS, documents beside the terminals are not available yet.</li>
+          <li data-requires="macos-documents">Linux first, and macOS 12.3 or later on Apple silicon, supported on a best-effort basis.</li>
+          <li>Local only by default: the server listens on <code>127.0.0.1</code>, and publishing it on your Tailscale network is optional.</li>
+        </ul>
+        <p><a class="gh-changelog" href="https://github.com/Session-Mesh/session-mesh/blob/main/CHANGELOG.md">Full changelog on GitHub</a></p>
+      </div>
+      <p class="hnav js-only"><a class="hnav-prev" href="#history"><span aria-hidden="true">←</span> All releases</a></p>
+    </article><!-- history-entries:end -->
+  </div>
+</section>
+
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div id="col-grip" class="grip js-only" aria-hidden="true"></div>
+
+      <div id="col-doc" class="workspace-group js-only">
+        <div class="workspace-tabs" role="tablist" aria-label="Panes">
+          <button class="workspace-tab tab-other" type="button" role="tab" aria-selected="false" data-pane="main">terminal</button>
+          <button class="workspace-tab" type="button" role="tab" aria-selected="true" data-pane="doc" id="tab-doc">document</button>
+          <button class="workspace-tab-close" type="button" id="btn-doc-close" aria-label="Close this column" title="Close this column (the session goes on)">×</button>
+        </div>
+        <section class="pane doc-pane" aria-label="Document pane">
+          <div class="pane-head">
+            <div class="p-identity"><span class="p-name" id="doc-name">document</span></div>
+            <span class="p-cmd mute">read-only</span>
+          </div>
+          <div class="pane-body"><div id="doc" class="doc-host"></div></div>
+        </section>
+      </div>
+    </div>
+  </main>
+</div>
+
+<dialog id="dlg-new" aria-labelledby="new-title">
+  <h2 id="new-title">New session</h2>
+  <label>Folder <input id="new-folder" value="~/session-mesh" readonly></label>
+  <fieldset class="presets">
+    <legend>Launch</legend>
+    <label><input type="radio" name="preset" value="install"> Shell</label>
+    <label><input type="radio" name="preset" value="see" checked> Claude Code</label>
+    <label><input type="radio" name="preset" value="collaborate"> Codex</label>
+    <label><input type="radio" name="preset" value="roadmap"> Pi</label>
+    <label><input type="radio" name="preset" value="structure"> Other</label>
+  </fieldset>
+  <p class="preset-hint" id="preset-hint" aria-live="polite"></p>
+  <p class="mute small">On this page, each choice opens a section of this site. In session-mesh, it starts that program in the chosen folder.</p>
+  <div class="row">
+    <button type="button" class="btn ghost" data-close>Cancel</button>
+    <button type="button" class="btn primary" id="new-open">Open</button>
+  </div>
+</dialog>
+
+<dialog id="sheet-panes" class="sheet" aria-labelledby="sheet-panes-title">
+  <div class="mobile-actions-head"><h2 id="sheet-panes-title">Open panes</h2><button class="btn ghost" type="button" data-close>Close</button></div>
+  <div class="mobile-actions-list">
+    <button class="btn" type="button" data-pane="main" id="sheet-pane-main">terminal</button>
+    <button class="btn" type="button" data-pane="doc" id="sheet-pane-doc">document</button>
+  </div>
+</dialog>
+
+<dialog id="sheet-actions" class="sheet" aria-labelledby="sheet-actions-title">
+  <div class="mobile-actions-head"><h2 id="sheet-actions-title">Actions</h2><button class="btn ghost" type="button" data-close>Close</button></div>
+  <div class="mobile-actions-list">
+    <button class="btn" type="button" data-action="new">+ New session</button>
+    <button class="btn" type="button" data-action="install">Install</button>
+    <a class="btn" href="https://github.com/Session-Mesh/session-mesh">View on GitHub</a>
+  </div>
+</dialog>
+
+<p id="announce" class="sr-only" aria-live="polite"></p>
+</body>
+</html>

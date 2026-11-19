@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 130" width="240" height="130" fill="none">
+  <defs>
+    <mask id="sm-dark-mask-left">
+      <rect x="0" y="0" width="240" height="130" fill="white"/>
+      <line x1="100" y1="59" x2="145" y2="104" stroke="black" stroke-width="21" stroke-linecap="butt"/>
+    </mask>
+    <mask id="sm-dark-mask-right">
+      <rect x="0" y="0" width="240" height="130" fill="white"/>
+      <line x1="95" y1="26" x2="140" y2="71" stroke="black" stroke-width="21" stroke-linecap="butt"/>
+    </mask>
+  </defs>
+
+  <polygon points="24,42 40,26 95,26 134,65 95,104 40,104 24,88"
+           stroke="#1CE838" stroke-width="11" stroke-linejoin="round"
+           mask="url(#sm-dark-mask-left)"/>
+
+  <polygon points="145,26 200,26 216,42 216,88 200,104 145,104 106,65"
+           stroke="#F8FAFC" stroke-width="11" stroke-linejoin="round"
+           mask="url(#sm-dark-mask-right)"/>
+
+  <polyline points="52,48 69,65 52,82"
+            stroke="#1CE838" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <polyline points="169,48 186,65 169,82"
+            stroke="#F8FAFC" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
