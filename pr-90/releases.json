@@ -8,7 +8,7 @@
       "summary": "A patch release of the 0.1 line: fixes, a native mesh-logout-all, and documentation.",
       "highlights": [
         {
-          "text": "Idle Claude Code and Codex sessions no longer show as working in the sidebar; a question or permission prompt is still always shown.",
+          "text": "Idle Claude Code and Codex sessions are no longer listed as working in the sidebar; a question or permission prompt is still always shown.",
           "sources": [
             { "file": "CHANGELOG.md", "lead": "Idle sessions no longer show as working." },
             { "file": "docs/features.md", "heading": "Starting and finding sessions" }
